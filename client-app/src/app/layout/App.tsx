@@ -1,16 +1,19 @@
-import React, { useState, useEffect, Fragment } from "react";
-import axios from "axios";
+import React, { useState, useEffect, Fragment, SyntheticEvent } from "react";
 import { List, Container } from "semantic-ui-react";
 import { IActivity } from "./models/activity";
 import { NavBar } from "../../features/nav/NavBar";
 import ActivitiyDashboard from "../../features/activities/dashboard/ActivitiyDashboard";
-import { v4 as uuid } from 'uuid'
+import agent from "../api/agent";
+import LoadingComponent from "./LoadingComponent";
 const App = () => {
   const [activities, setActivities] = useState<IActivity[]>([]);
   const [selectedActivity, setSelectedActvity] = useState<IActivity | null>(
     null
   );
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [target, setTarget] = useState('');
   const handelOpenCreateForm = () => {
     setSelectedActvity(null);
     setEditMode(true);
@@ -20,32 +23,43 @@ const App = () => {
     setEditMode(false);
   };
   const handelCreateActivity = (activity: IActivity) => {
-    setActivities([...activities, activity]);
-    setSelectedActvity(activity);
-    setEditMode(false);
+    setSubmitting(true);
+    agent.Activites.create(activity).then(() => {
+      setActivities([...activities, activity]);
+      setSelectedActvity(activity);
+      setEditMode(false);
+    }).then(() => setSubmitting(false));
   }
   const handelEditActivity = (activity: IActivity) => {
-    setActivities([...activities.filter(a => a.id !== activity.id), activity]);
-    setSelectedActvity(activity);
-    setEditMode(false);
+    setSubmitting(true);
+    agent.Activites.update(activity).then(() => {
+      setActivities([...activities.filter(a => a.id !== activity.id), activity]);
+      setSelectedActvity(activity);
+      setEditMode(false);
+    }).then(() => setSubmitting(false));
   }
-  const handelDeleteActivity = (id: string) => {
-    setActivities([...activities.filter(a => a.id !== id)]);
-    setSelectedActvity(null);
-    setEditMode(false);
+  const handelDeleteActivity = (event: SyntheticEvent<HTMLButtonElement>, id: string) => {
+    setTarget(event.currentTarget.name);
+    setSubmitting(true);
+    agent.Activites.delete(id).then(() => {
+      setActivities([...activities.filter(a => a.id !== id)]);
+      setSelectedActvity(null);
+      setEditMode(false);
+    }).then(() => setSubmitting(false));;
   }
   useEffect(() => {
-    axios
-      .get<IActivity[]>("http://localhost:5000/api/activities")
+      agent.Activites.list()
       .then(response => {
         let activiteis: IActivity[] = [];
-        response.data.forEach(activity => {
+        response.forEach((activity) => {
           activity.date =  activity.date.split(".")[0];
           activiteis.push(activity);
         });
-        setActivities(response.data);
-      });
+        setActivities(response);
+      }).then(() => setLoading(false));
   }, []);
+  if(loading)
+    return <LoadingComponent content="Loading Component ... " />
   return (
     <Fragment>
       <NavBar openCreateForm={handelOpenCreateForm} />
@@ -61,6 +75,8 @@ const App = () => {
             createActivity = {handelCreateActivity}
             editActivity = {handelEditActivity}
             deleteActivity={handelDeleteActivity}
+            submitting={submitting}
+            target={target}
           />
         </Container>
       </List>

@@ -12,10 +12,10 @@ const ActivitiyDetails: React.FC<IProps> = ({
   setEditMode,
   setSelectedActivity
 }) => {
-    const [details, setDetails] = useState<IActivity>();
-    const handelSetDetails = () => {
-        setDetails(activity);
-    }
+  const [details, setDetails] = useState<IActivity>();
+  const handelSetDetails = () => {
+    setDetails(activity);
+  };
   return (
     <Card fluid>
       <Image
