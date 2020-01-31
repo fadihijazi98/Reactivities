@@ -1,20 +1,16 @@
-import React, { SyntheticEvent } from "react";
+import React, { SyntheticEvent, useContext } from "react";
 import { Item, Button, Label, Segment } from "semantic-ui-react";
 import { IActivity } from "../../../app/layout/models/activity";
+import { observer } from "mobx-react-lite";
+import AcitivityStore from "../../../app/stores/activityStore";
 
-interface IProps {
-  activities: IActivity[];
-  selectActivity: (id: string) => void;
-  deleteActivity: (event: SyntheticEvent<HTMLButtonElement>, id: string) => void;
-  submitting: boolean;
-  target: string;
-}
-
-const ActivitiyList: React.FC<IProps> = props => {
+const ActivitiyList: React.FC = () => {
+  const activityStore = useContext(AcitivityStore);
+  const {activitesByDate, selectActivity, submitting, target, deleteActivity} = activityStore; 
   return (
     <Segment clearing>
       <Item.Group divided>
-        {props.activities.map(activity => (
+        {activitesByDate.map(activity => (
           <Item key={activity.id}>
             <Item.Image
               size="tiny"
@@ -29,15 +25,15 @@ const ActivitiyList: React.FC<IProps> = props => {
               </Item.Description>
               <Item.Extra>
                 <Button
-                  onClick={() => props.selectActivity(activity.id)}
+                  onClick={() => selectActivity(activity.id)}
                   floated="right"
                   content="view"
                   color="blue"
                 />
                 <Button
                   name={activity.id}
-                  loading={props.target === activity.id && props.submitting}
-                  onClick={(e) => props.deleteActivity(e, activity.id)}
+                  loading={target === activity.id && submitting}
+                  onClick={(e) => deleteActivity(e, activity.id)}
                   floated="right"
                   content="delete"
                   color="red"
@@ -51,4 +47,4 @@ const ActivitiyList: React.FC<IProps> = props => {
     </Segment>
   );
 };
-export default ActivitiyList;
+export default observer(ActivitiyList);
