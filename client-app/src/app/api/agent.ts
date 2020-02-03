@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 import { IActivity } from "../layout/models/activity";
-import { timeout } from "q";
 axios.defaults.baseURL = "http://localhost:5000/api";
 const sleep = (ms: number) => (response: AxiosResponse) => new Promise<AxiosResponse>(resolve => setTimeout(() => resolve(response), ms));
 const responseBody = (response: AxiosResponse) => response.data;
