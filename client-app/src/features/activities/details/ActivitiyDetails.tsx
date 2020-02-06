@@ -1,4 +1,58 @@
 import React, { useContext, useEffect } from "react";
+import { Card, Image, Button, Grid } from "semantic-ui-react";
+import ActivityStore from "../../../app/stores/activityStore";
+import { observer } from "mobx-react-lite";
+import { RouteComponentProps } from "react-router";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
+import { Link } from "react-router-dom";
+import ActivityDetailsInfo from "./ActivityDetailsInfo";
+import { ActivityDetailsChat } from "./ActivityDetailsChat";
+import { ActivityDetailsSideBar } from "./ActivityDetailsSideBar";
+import ActivityDetailsHeader from "./ActivityDetailsHeader";
+interface DetailsProps {
+  id: string;
+}
+const ActivitiyDetails: React.FC<RouteComponentProps<DetailsProps>> = ({
+  match
+}) => {
+  const activityStore = useContext(ActivityStore);
+  const {
+    activity,
+    loadActivity,
+    loadingInitial
+  } = activityStore;
+  useEffect(() => {
+    loadActivity(match.params.id);
+  }, [loadActivity]);
+  if (loadingInitial || !activity) {
+    console.log(activity);
+    return <LoadingComponent content="loading ..." />;
+  }
+  return (
+    <Grid>
+      <Grid.Column width={10}>
+        <ActivityDetailsHeader activity={activity} />
+        <ActivityDetailsInfo activity={activity} />
+        <ActivityDetailsChat />
+      </Grid.Column>
+      <Grid.Column width={6}>
+        <ActivityDetailsSideBar />
+      </Grid.Column>
+    </Grid>
+  );
+};
+export default observer(ActivitiyDetails);
+
+
+
+
+
+
+
+
+
+{/*
+import React, { useContext, useEffect } from "react";
 import { Card, Image, Button } from "semantic-ui-react";
 import ActivityStore from "../../../app/stores/activityStore";
 import { observer } from "mobx-react-lite";
@@ -26,6 +80,7 @@ const ActivitiyDetails: React.FC<RouteComponentProps<DetailsProps>> = ({
     return <LoadingComponent content="loading ..." />;
   }
   return (
+    
     <Card fluid>
       <Image
         src={"/assets/categoryImages/" + activity!.category + ".jpg"}
@@ -61,3 +116,4 @@ const ActivitiyDetails: React.FC<RouteComponentProps<DetailsProps>> = ({
   );
 };
 export default observer(ActivitiyDetails);
+*/}
